@@ -46,8 +46,8 @@ trainSet$packaging_tags <- NULL
 trainSet$origins <- NULL
 trainSet$origins_tags <- NULL
 
-trainSet$score <- trainSet[,143] + 15
-trainSet$score <- round(trainSet[,143] / 51)
+trainSet$score <- trainSet[,126] + 15
+trainSet$score <- round(trainSet[,126] / 51)
 
 trainSet[is.na(trainSet)] <- 0
 
@@ -63,13 +63,18 @@ for(i in 1:10) {
   testSet <- trainSet[testIndex,]
   trainSetIteration <- trainSet[-testIndex,]
   
+  start.time <- Sys.time()
+  print(start.time)
+  
   logisticModel <- glm(score~.,data=trainSet,family = binomial)
   logisticPrediction <- predict(logisticModel,testSet,type='response')
   
   cmLR <- table(testSet$score,logisticPrediction > 0.5) # Confusion Matrix
   
-  print("Logistic Regression Confusion Matrix: ")
-  print(cmLR)
+  end.time <- Sys.time()
+  print(end.time)
+  print(end.time-start.time)
+  
   #Now computing measurements i.e. accuracy,precision,f-measure, and recall
   
   totalLR <- sum(cmLR) # number of instances
