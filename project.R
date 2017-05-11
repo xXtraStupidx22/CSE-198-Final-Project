@@ -3,10 +3,14 @@ library(FSelector)
 library(plyr)
 library(e1071)
 
-zip <- unzip("en.openfoodfacts.org.products.tsv.zip")
+zip <- unzip("en.openfoodfacts.org.products.tsv.zip") # Need to set your working directory
 trainSet <- fread(zip,sep='\t')
 
 trainSet <- rename(trainSet,c("nutrition-score-uk_100g"="score"))
+trainSet <- trainSet[!is.na(trainSet$score),]
+
+trainSet <- as.data.frame(unclass(trainSet))
+#trainSet[sapply(trainSet, is.character)] <- lapply(trainSet[sapply(trainSet, is.character)], as.factor)
 
 trainSet$url <- NULL
 trainSet$last_modified_datetime <- NULL
@@ -25,7 +29,10 @@ trainSet$countries <- NULL
 trainSet$countries_en <- NULL
 trainSet$countries_tags <- NULL
 
-sampleTrain <- trainSet[sample(40000, 30000, replace=FALSE),]
+trainSet$score <- trainSet[,143] + 15
+trainSet$score <- round(trainSet[,143] / 51)
+
+sampleTrain <- trainSet[sample(14000, 10000, replace=FALSE),]
 sampleTrain[is.na(sampleTrain)] <- 0
 
 #weights <- information.gain(score~.,sampleTrain)
@@ -42,21 +49,24 @@ for(i in 1:10) {
   testSet <- sampleTrain[testIndex,]
   trainSetIteration <- sampleTrain[-testIndex,]
   
-  logisticModel <- glm(score~.,data=trainSetIteration,family = binomial)
-  logisticPrediction <- predict(logisticModel,testSet,type='response')
+  #trainSetIteration$score <- as.factor(trainSetIteration$score)
   
-#  bayesModel <- naiveBayes(as.factor(score) ~ .,data = trainSetIteration[,-1])
-#  temp <- testSet[,-1]
- # predictionsBayes <- suppresspredict(bayesModel,as.data.frame(temp[,-143]))
- # cmBayesProject <- table(testSet$score,predictionsBayes)
+  #logisticModel <- glm(score~.,data=trainSetIteration,family = binomial)
+  #logisticPrediction <- predict(logisticModel,testSet,type='response')
   
-  cmLR <- table(testSet$score,logisticPrediction > 0.5) # Confusion Matrix
+  bayesModel <- naiveBayes(as.factor(score) ~ .,data = trainSetIteration[,-1])
+  temp <- testSet[,-1]
+  predictionsBayes <- predict(bayesModel,as.data.frame(temp[,-143]))
+
+  cmBayesProject <- table(testSet$score,predictionsBayes)
   
-  totalBayes <- sum(cmLR)
-  diagBayes <- diag(cmLR)
+  #cmLR <- table(testSet$score,logisticPrediction > 0.5) # Confusion Matrix
+  
+  totalBayes <- sum(cmBayesProject)
+  diagBayes <- diag(cmBayesProject)
   accuracyBayes <- sum(diagBayes)/totalBayes # Fraction of instances that are correctly classified
-  precisionBayes <- diagBayes[2]/(diagBayes[2]+cmLR[3]) # The fraction of correct predictions over a certain class
-  recallBayes <- diagBayes[2]/(diagBayes[2]+cmLR[2]) # Fraction of instances that were correctly predicted
+  precisionBayes <- diagBayes[2]/(diagBayes[2]+cmBayesProject[3]) # The fraction of correct predictions over a certain class
+  recallBayes <- diagBayes[2]/(diagBayes[2]+cmBayesProject[2]) # Fraction of instances that were correctly predicted
   fmeasureBayes <- 2 * precisionBayes * recallBayes / (precisionBayes + recallBayes) # weighted average of precision and recallfmeas
   
   averageAcc <- averageAcc + accuracyBayes
@@ -65,6 +75,7 @@ for(i in 1:10) {
   averageFM <- averageFM + fmeasureBayes
   
 }
+
 
 print("For 10 fold cross validation:")
 
