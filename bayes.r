@@ -10,7 +10,6 @@ trainSet <- rename(trainSet,c("nutrition-score-uk_100g"="score"))
 trainSet <- trainSet[!is.na(trainSet$score),]
 
 trainSet <- as.data.frame(unclass(trainSet))
-#trainSet[sapply(trainSet, is.character)] <- lapply(trainSet[sapply(trainSet, is.character)], as.factor)
 
 trainSet$url <- NULL
 trainSet$last_modified_datetime <- NULL
@@ -28,16 +27,32 @@ trainSet$cities_tags <- NULL
 trainSet$countries <- NULL
 trainSet$countries_en <- NULL
 trainSet$countries_tags <- NULL
+trainSet$`vitamin-b12_100g`<- NULL
+trainSet$categories <- NULL
+trainSet$categories_en <- NULL
+trainSet$product_name <- NULL
+trainSet$generic_name <- NULL
+trainSet$categories_tags <- NULL
+trainSet$code <- NULL
+trainSet$ingredients_text <- NULL
+trainSet$additives <- NULL
+trainSet$additives_en <- NULL
+trainSet$additives_tags <- NULL
+trainSet$brands <- NULL
+trainSet$brands_tags <- NULL
+trainSet$creator <- NULL
+trainSet$created_t <- NULL
+trainSet$packaging <- NULL
+trainSet$packaging_tags <- NULL
+trainSet$origins <- NULL
+trainSet$origins_tags <- NULL
 
-trainSet$score <- trainSet[,143] + 15
-trainSet$score <- round(trainSet[,143] / 51)
+trainSet$score <- trainSet[,126] + 15
+trainSet$score <- round(trainSet[,126] / 51)
 
-sampleTrain <- trainSet[sample(30000, 20000, replace=FALSE),]
-sampleTrain[is.na(sampleTrain)] <- 0
+trainSet[is.na(trainSet)] <- 0
 
-#weights <- information.gain(score~.,sampleTrain)
-
-folds <- cut(seq(1,nrow(sampleTrain)),breaks=10,labels = FALSE)
+folds <- cut(seq(1,nrow(trainSet)),breaks=10,labels = FALSE)
 
 averageAcc <- 0
 averageFM <- 0
@@ -46,21 +61,14 @@ averagePre <- 0
 
 for(i in 1:10) {
   testIndex <- which(folds == i,arr.ind = TRUE)
-  testSet <- sampleTrain[testIndex,]
-  trainSetIteration <- sampleTrain[-testIndex,]
+  testSet <- trainSet[testIndex,]
+  trainSetIteration <- trainSet[-testIndex,]
   
-  #trainSetIteration$score <- as.factor(trainSetIteration$score)
-  
-  #logisticModel <- glm(score~.,data=trainSetIteration,family = binomial)
-  #logisticPrediction <- predict(logisticModel,testSet,type='response')
-  
-  bayesModel <- naiveBayes(as.factor(score) ~ .,data = trainSetIteration[,-1])
-  temp <- testSet[,-1]
-  predictionsBayes <- predict(bayesModel,as.data.frame(temp[,-143]))
+  bayesModel <- naiveBayes(as.factor(score) ~ .,data = trainSetIteration)
+  temp <- testSet
+  predictionsBayes <- predict(bayesModel,as.data.frame(temp[,-126]))
 
   cmBayesProject <- table(testSet$score,predictionsBayes)
-  
-  #cmLR <- table(testSet$score,logisticPrediction > 0.5) # Confusion Matrix
   
   totalBayes <- sum(cmBayesProject)
   diagBayes <- diag(cmBayesProject)
@@ -86,4 +94,8 @@ print(paste0("Naive Bayes Average Precision: ",averagePre/10))
 print(paste0("Naive Bayes Average Recall: ",averageRe/10))
 
 print(paste0("Naive Bayes Average F-Measure: ",averageFM/10))
+
+#ROCRpred <- prediction(logisticPrediction,testSet$survived)
+#ROCRperf <- performance(ROCRpred,'tpr','fpr')
+
 
