@@ -26,6 +26,25 @@ trainSet$cities_tags <- NULL
 trainSet$countries <- NULL
 trainSet$countries_en <- NULL
 trainSet$countries_tags <- NULL
+trainSet$`vitamin-b12_100g`<- NULL
+trainSet$categories <- NULL
+trainSet$categories_en <- NULL
+trainSet$product_name <- NULL
+trainSet$generic_name <- NULL
+trainSet$categories_tags <- NULL
+trainSet$code <- NULL
+trainSet$ingredients_text <- NULL
+trainSet$additives <- NULL
+trainSet$additives_en <- NULL
+trainSet$additives_tags <- NULL
+trainSet$brands <- NULL
+trainSet$brands_tags <- NULL
+trainSet$creator <- NULL
+trainSet$created_t <- NULL
+trainSet$packaging <- NULL
+trainSet$packaging_tags <- NULL
+trainSet$origins <- NULL
+trainSet$origins_tags <- NULL
 
 trainSet$score <- trainSet[,143] + 15
 trainSet$score <- round(trainSet[,143] / 51)
