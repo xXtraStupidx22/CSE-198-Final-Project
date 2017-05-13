@@ -13,6 +13,25 @@ trainSet <- trainSet[!is.na(trainSet$score),]
 trainSet <- as.data.frame(unclass(trainSet))
 
 trainSet$url <- NULL
+trainSet$quantity <- NULL
+trainSet$manufacturing_places <- NULL
+trainSet$manufacturing_places_tags <- NULL
+trainSet$labels <- NULL
+trainSet$labels_tags <- NULL
+trainSet$labels_en <- NULL
+trainSet$emb_codes <- NULL
+trainSet$emb_codes_tags <- NULL
+trainSet$first_packaging_code_geo <- NULL
+trainSet$purchase_places <- NULL
+trainSet$stores <- NULL
+trainSet$allergens <- NULL
+trainSet$traces <- NULL
+trainSet$traces_en <- NULL
+trainSet$traces_tags <- NULL
+trainSet$serving_size <- NULL
+trainSet$ingredients_that_may_be_from_palm_oil_tags <- NULL
+trainSet$main_category <- NULL
+trainSet$main_category_en <- NULL
 trainSet$last_modified_datetime <- NULL
 trainSet$image_url <- NULL
 trainSet$image_small_url <- NULL
@@ -48,8 +67,8 @@ trainSet$packaging_tags <- NULL
 trainSet$origins <- NULL
 trainSet$origins_tags <- NULL
 
-trainSet$score <- trainSet[,126] + 15
-trainSet$score <- round(trainSet[,126] / 51)
+trainSet$score <- trainSet[,107] + 15
+trainSet$score <- round(trainSet[,107] / 51)
 
 trainSet[is.na(trainSet)] <- 0
 
@@ -72,7 +91,7 @@ for(i in 1:10) {
   
   bayesModel <- naiveBayes(as.factor(score) ~ .,data = trainSetIteration)
   temp <- testSet
-  predictionsBayes <- predict(bayesModel,as.data.frame(temp[,-126]))
+  predictionsBayes <- predict(bayesModel,as.data.frame(temp[,-107]))
 
   cmBayesProject <- table(as.numeric(testSet$score),as.numeric(predictionsBayes))
   
