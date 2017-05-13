@@ -2,6 +2,7 @@ library(data.table)
 library(FSelector)
 library(plyr)
 library(e1071)
+library(ROCR)
 
 zip <- unzip("en.openfoodfacts.org.products.tsv.zip") # Need to set your working directory
 trainSet <- fread(zip,sep='\t')
@@ -58,6 +59,11 @@ averageAcc <- 0
 averageFM <- 0
 averageRe <- 0
 averagePre <- 0
+averageAUC <- 0
+
+count <- 1
+
+jpeg('bayes_roc.jpg')
 
 for(i in 1:10) {
   testIndex <- which(folds == i,arr.ind = TRUE)
@@ -68,7 +74,7 @@ for(i in 1:10) {
   temp <- testSet
   predictionsBayes <- predict(bayesModel,as.data.frame(temp[,-126]))
 
-  cmBayesProject <- table(testSet$score,predictionsBayes)
+  cmBayesProject <- table(as.numeric(testSet$score),as.numeric(predictionsBayes))
   
   totalBayes <- sum(cmBayesProject)
   diagBayes <- diag(cmBayesProject)
@@ -82,8 +88,24 @@ for(i in 1:10) {
   averageRe <- averageRe + recallBayes
   averageFM <- averageFM + fmeasureBayes
   
+  ROCRpred <- prediction(as.numeric(predictionsBayes),testSet$score)
+  ROCRperf <- performance(ROCRpred,'tpr','fpr')
+  
+  bayesAUC <- performance(ROCRpred,measure='auc')
+  averageAUC <- averageAUC + as.numeric(bayesAUC@y.values)
+  
+  if(count == 1) {
+    plot(ROCRperf,col=count,main="ROC Curve")
+  }
+  else {
+    plot(ROCRperf,col=count,add=TRUE)
+  }
+  
+  count <- count + 1
+  
 }
 
+dev.off()
 
 print("For 10 fold cross validation:")
 
@@ -95,7 +117,5 @@ print(paste0("Naive Bayes Average Recall: ",averageRe/10))
 
 print(paste0("Naive Bayes Average F-Measure: ",averageFM/10))
 
-#ROCRpred <- prediction(logisticPrediction,testSet$survived)
-#ROCRperf <- performance(ROCRpred,'tpr','fpr')
-
+print(paste0("Naive Bayes Average AUC: ",averageAUC/10))
 

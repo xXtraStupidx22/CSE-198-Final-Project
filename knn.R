@@ -2,6 +2,7 @@ library(kknn)
 library(data.table)
 library(FSelector)
 library(plyr)
+library(ROCR)
 
 zip <- unzip("en.openfoodfacts.org.products.tsv.zip") # Need to set your working directory
 trainSet <- fread(zip,sep='\t')
@@ -51,14 +52,7 @@ trainSet$score <- trainSet[,126] + 15
 trainSet$score <- round(trainSet[,126] / 51)
 
 trainSet[is.na(trainSet)] <- 0
-sampleTrain <- trainSet[sample(600, 500, replace=FALSE),]
-
-#smp_size <- floor(0.75 * nrow(sampleTrain))
-#set.seed(123)
-#train_ind <- sample(seq_len(nrow(sampleTrain)), size = smp_size)
-
-#train <- sampleTrain[train_ind, ]
-#test <- sampleTrain[-train_ind, ]
+sampleTrain <- trainSet[sample(4000, 3000, replace=FALSE),]
 
 folds <- cut(seq(1,nrow(sampleTrain)),breaks=10,labels = FALSE)
 
@@ -66,6 +60,11 @@ averageAcc <- 0
 averageFM <- 0
 averageRe <- 0
 averagePre <- 0
+averageAUC <- 0
+
+count <- 1
+
+jpeg('knn_roc.jpg')
 
 for(i in 1:10) {
   testIndex <- which(folds == i,arr.ind = TRUE)
@@ -75,7 +74,7 @@ for(i in 1:10) {
   start.time <- Sys.time()
   print(start.time)
 
-  kNearestNeighborsModel <- kknn(score~.,trainSetIteration,testSet,distance = 3)
+  kNearestNeighborsModel <- kknn(score~.,trainSetIteration,testSet,distance = 2,k = 8)
   fittedKNN <- fitted(kNearestNeighborsModel)
   cmKNN <- table(testSet$score,fittedKNN > 0.5) 
   
@@ -95,18 +94,39 @@ for(i in 1:10) {
   averageRe <- averageRe + recallKNN
   averageFM <- averageFM + fmeasureKNN
   
+  ROCRpred <- prediction(fittedKNN,testSet$score)
+  ROCRperf <- performance(ROCRpred,'tpr','fpr')
+  
+  knnAUC <- performance(ROCRpred,measure='auc')
+  averageAUC <- averageAUC + as.numeric(knnAUC@y.values)
+  
+  if(count == 1) {
+    plot(ROCRperf,col=count,main="ROC Curve")
+  }
+  else {
+    plot(ROCRperf,col=count,add=TRUE)
+  }
+  
+  count <- count + 1
+  
 }
+
+dev.off()
+
 
 print("For 10 fold cross validation:")
 
-print(paste0("KNN Average Accuracy: ",averageAcc))
+print(paste0("KNN Average Accuracy: ",averageAcc/10))
 
-print(paste0("KNN Average Precision: ",averagePre))
+print(paste0("KNN Average Precision: ",averagePre/10))
 
-print(paste0("KNN Average Recall: ",averageRe))
+print(paste0("KNN Average Recall: ",averageRe/10))
 
-print(paste0("KNN Average F-Measure: ",averageFM))
-  
+print(paste0("KNN Average F-Measure: ",averageFM/10))
+
+print(paste0("KNN Average AUC",averageAUC/10))
+
+
   
   
   
