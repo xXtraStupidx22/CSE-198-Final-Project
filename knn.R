@@ -12,7 +12,7 @@ trainSet <- trainSet[!is.na(trainSet$score),]
 
 trainSet <- as.data.frame(unclass(trainSet))
 
-trainSet$url <- NULL
+"trainSet$url <- NULL
 trainSet$last_modified_datetime <- NULL
 trainSet$image_url <- NULL
 trainSet$image_small_url <- NULL
@@ -69,10 +69,28 @@ trainSet$labels_tags <- as.numeric(trainSet$labels_tags)
 trainSet$labels_en <- as.numeric(trainSet$labels_en)
 trainSet$manufacturing_places <- as.numeric(trainSet$manufacturing_places)
 trainSet$quantity <- as.numeric(trainSet$quantity)
-trainSet$manufacturing_places_tags <- as.numeric(trainSet$manufacturing_places_tags)
+trainSet$manufacturing_places_tags <- as.numeric(trainSet$manufacturing_places_tags)"
 
-trainSet$score <- trainSet[,124] + 15
-trainSet$score <- round(trainSet[,124] / 51)
+pnns_groups_1 <- trainSet$pnns_groups_1
+pnns_groups_2 <- trainSet$pnns_groups_2
+energy_100g <- trainSet$energy_100g
+fat_100g <- trainSet$fat_100g
+saturated.fat_100g <- trainSet$saturated.fat_100g
+monounsaturated.fat_100g <- trainSet$monounsaturated.fat_100g
+carbohydrates_100g <- trainSet$carbohydrates_100g
+sugars_100g <- trainSet$sugars_100g
+proteins_100g <- trainSet$proteins_100g
+salt_100g <- trainSet$salt_100g
+sodium_100g <- trainSet$sodium_100g
+vitamin.c_100g <- trainSet$vitamin.c_100g
+calcium_100g <- trainSet$calcium_100g
+score <- trainSet$score
+
+trainSet <- data.frame(pnns_groups_1,pnns_groups_2,energy_100g,fat_100g,saturated.fat_100g,monounsaturated.fat_100g,carbohydrates_100g,sugars_100g,proteins_100g,salt_100g,sodium_100g,vitamin.c_100g,calcium_100g,score)
+
+
+trainSet$score <- trainSet[,14] + 15
+trainSet$score <- round(trainSet[,14] / 51)
 
 trainSet[is.na(trainSet)] <- 0
 #sampleTrain <- trainSet[sample(30000, 20000, replace=FALSE),]

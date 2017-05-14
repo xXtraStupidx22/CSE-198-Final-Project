@@ -12,7 +12,7 @@ trainSet <- trainSet[!is.na(trainSet$score),]
 
 trainSet <- as.data.frame(unclass(trainSet))
 
-trainSet$url <- NULL
+"trainSet$url <- NULL
 trainSet$last_modified_datetime <- NULL
 trainSet$image_url <- NULL
 trainSet$image_small_url <- NULL
@@ -67,12 +67,29 @@ trainSet$traces_tags <- NULL
 trainSet$ingredients_that_may_be_from_palm_oil_tags <- NULL
 trainSet$serving_size <- NULL
 trainSet$purchase_places <- NULL
-trainSet$quantity <- NULL
+trainSet$quantity <- NULL"
 
 names(trainSet) <- make.names(names(trainSet))
 
-trainSet$score <- trainSet[,105] + 15
-trainSet$score <- round(trainSet[,105] / 51)
+pnns_groups_1 <- trainSet$pnns_groups_1
+pnns_groups_2 <- trainSet$pnns_groups_2
+energy_100g <- trainSet$energy_100g
+fat_100g <- trainSet$fat_100g
+saturated.fat_100g <- trainSet$saturated.fat_100g
+monounsaturated.fat_100g <- trainSet$monounsaturated.fat_100g
+carbohydrates_100g <- trainSet$carbohydrates_100g
+sugars_100g <- trainSet$sugars_100g
+proteins_100g <- trainSet$proteins_100g
+salt_100g <- trainSet$salt_100g
+sodium_100g <- trainSet$sodium_100g
+vitamin.c_100g <- trainSet$vitamin.c_100g
+calcium_100g <- trainSet$calcium_100g
+score <- trainSet$score
+
+trainSet <- data.frame(pnns_groups_1,pnns_groups_2,energy_100g,fat_100g,saturated.fat_100g,monounsaturated.fat_100g,carbohydrates_100g,sugars_100g,proteins_100g,salt_100g,sodium_100g,vitamin.c_100g,calcium_100g,score)
+
+trainSet$score <- trainSet[,14] + 15
+trainSet$score <- round(trainSet[,14] / 51)
 trainSet[is.na(trainSet)] <- 0
 
 jpeg('randomForest.jpg')
@@ -89,7 +106,7 @@ testSet <- trainSet[-train_ind, ]
 trainSet <- trainSet[train_ind, ]
   
 forestModel <- randomForest(score ~ ., data = trainSet)
-predicted <- predict(forestModel, newdata=testSet[,-105])
+predicted <- predict(forestModel, newdata=testSet[,-14])
 cmRF <- table(testSet$score,predicted > 0.5) 
   
 end.time <- Sys.time()

@@ -30,7 +30,6 @@ trainSet$traces_en <- NULL
 trainSet$traces_tags <- NULL
 trainSet$serving_size <- NULL
 trainSet$ingredients_that_may_be_from_palm_oil_tags <- NULL
-trainSet$main_category <- NULL
 trainSet$main_category_en <- NULL
 trainSet$last_modified_datetime <- NULL
 trainSet$image_url <- NULL
