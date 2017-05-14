@@ -12,7 +12,7 @@ trainSet <- trainSet[!is.na(trainSet$score),]
 
 trainSet <- as.data.frame(unclass(trainSet))
 
-trainSet$url <- NULL
+"trainSet$url <- NULL
 trainSet$quantity <- NULL
 trainSet$manufacturing_places <- NULL
 trainSet$manufacturing_places_tags <- NULL
@@ -35,7 +35,7 @@ trainSet$last_modified_datetime <- NULL
 trainSet$image_url <- NULL
 trainSet$image_small_url <- NULL
 trainSet$created_datetime <- NULL
-trainSet$`nutrition-score-fr_100g` <- NULL
+trainSet$nutrition.score.fr_100g <- NULL
 trainSet$states <- NULL
 trainSet$states_tags <- NULL
 trainSet$states_en <- NULL
@@ -64,10 +64,28 @@ trainSet$created_t <- NULL
 trainSet$packaging <- NULL
 trainSet$packaging_tags <- NULL
 trainSet$origins <- NULL
-trainSet$origins_tags <- NULL
+trainSet$origins_tags <- NULL "
 
-trainSet$score <- trainSet[,107] + 15
-trainSet$score <- round(trainSet[,107] / 51)
+pnns_groups_1 <- trainSet$pnns_groups_1
+pnns_groups_2 <- trainSet$pnns_groups_2
+energy_100g <- trainSet$energy_100g
+fat_100g <- trainSet$fat_100g
+saturated.fat_100g <- trainSet$saturated.fat_100g
+monounsaturated.fat_100g <- trainSet$monounsaturated.fat_100g
+carbohydrates_100g <- trainSet$carbohydrates_100g
+sugars_100g <- trainSet$sugars_100g
+proteins_100g <- trainSet$proteins_100g
+salt_100g <- trainSet$salt_100g
+sodium_100g <- trainSet$sodium_100g
+vitamin.c_100g <- trainSet$vitamin.c_100g
+calcium_100g <- trainSet$calcium_100g
+score <- trainSet$score
+
+trainSet <- data.frame(pnns_groups_1,pnns_groups_2,energy_100g,fat_100g,saturated.fat_100g,monounsaturated.fat_100g,carbohydrates_100g,sugars_100g,proteins_100g,salt_100g,sodium_100g,vitamin.c_100g,calcium_100g,score)
+
+
+trainSet$score <- trainSet[,14] + 15
+trainSet$score <- round(trainSet[,14] / 51)
 
 trainSet[is.na(trainSet)] <- 0
 
@@ -90,7 +108,7 @@ for(i in 1:10) {
   
   bayesModel <- naiveBayes(as.factor(score) ~ .,data = trainSetIteration)
   temp <- testSet
-  predictionsBayes <- predict(bayesModel,as.data.frame(temp[,-107]))
+  predictionsBayes <- predict(bayesModel,as.data.frame(temp[,-14]))
 
   cmBayesProject <- table(as.numeric(testSet$score),as.numeric(predictionsBayes))
   
